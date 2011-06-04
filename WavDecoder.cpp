@@ -45,6 +45,9 @@ bool WavDecoder::open(QIODevice *dev)
 		stream >> mByteRate;
 		stream >> mBlockAlign;
 		stream >> mBitsPerSample;
+		if (mBitsPerSample > 16) {
+			throw QString("this program only supports files with up to 16 bits per sample");
+		}
 		if ((mByteRate != (mSampleRate * mNumChannels * mBitsPerSample / 8)) ||
 			(mBlockAlign != (mNumChannels * mBitsPerSample / 8)))
 		{
@@ -55,6 +58,17 @@ bool WavDecoder::open(QIODevice *dev)
 		}
 		stream >> chunkSize;
 		mNumSamples = chunkSize / ((mBitsPerSample / 8) * mNumChannels);
+		mSamples.resize(mNumChannels);
+		for (int i = 0; i < mNumChannels; i++) {
+			mSamples[i].reserve(mNumSamples);
+		}
+		for (unsigned int sample = 0; sample < mNumSamples; sample++) {
+			for (quint16 channel = 0; channel < mNumChannels; channel++) {
+				qint16 data;
+				stream >> data;
+				mSamples[channel] << data;
+			}
+		}
 	} catch (QString &e) {
 		QMessageBox::critical(qobject_cast<QWidget *>(this), "Error with WAV decoding", "There was an error with decoding the file: " + e);
 		return false;

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QIODevice>
+#include <QVector>
 
 class WavDecoder : public QObject
 {
@@ -24,6 +25,7 @@ private:
 	quint16 mBlockAlign;
 	quint16 mBitsPerSample;
 	unsigned int mNumSamples;
+	QVector<QVector<qint16> > mSamples;
 };
 
 #endif // WAVDECODER_H
