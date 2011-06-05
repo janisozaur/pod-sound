@@ -55,8 +55,9 @@ bool WavDecoder::open(QIODevice *dev)
 		{
 			throw QString("some header fields don't match");
 		}
-		if (string(&stream, 4) != "data") {
-			throw QString("the data chunk is invalid");
+		while (string(&stream, 4) != "data") {
+			stream >> chunkSize;
+			stream.skipRawData(chunkSize);
 		}
 		stream >> chunkSize;
 		mNumSamples = chunkSize / ((mBitsPerSample / 8) * mNumChannels);
