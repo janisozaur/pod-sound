@@ -27,12 +27,26 @@ SoundWindow::~SoundWindow()
 void SoundWindow::constructorInternals()
 {
 	mFiltersMenu = menuBar()->addMenu("Filters");
+
 	appendFilter(new AutoCorrelationFilter(this));
+
+	connect(mFiltersMenu, SIGNAL(triggered(QAction*)), this, SLOT(applyFilter(QAction*)));
+}
+
+void SoundWindow::applyFilter(QAction *action)
+{
+	FilterInterface *filter = mFiltersHash[action->data().value<QUuid>()];
+	qDebug() << "filter name:" << filter->name();
+	FilterData fd;
+	fd.samples = mWavDecoder->samples();
+	if (filter->setup(fd)) {
+		DisplayWindow *dw = filter->apply(windowTitle());
+		q_check_ptr(dw)->show();
+	}
 }
 
 void SoundWindow::appendFilter(FilterInterface *filter)
 {
-
 	mFiltersHash.insert(filter->uuid(), filter);
 	QAction *menuAction = new QAction(filter->name(), this);
 	QVariant v;
