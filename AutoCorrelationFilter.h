@@ -15,6 +15,9 @@ signals:
 public slots:
 	virtual bool setup(const FilterData &data);
 	virtual DisplayWindow *apply(QString windowBaseName);
+
+private:
+	QVector<QVector<qint16> > mSamples;
 };
 
 #endif // AUTOCORRELATIONFILTER_H
