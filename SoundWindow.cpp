@@ -10,10 +10,10 @@
 
 Q_DECLARE_METATYPE(QUuid)
 
-SoundWindow::SoundWindow(QString fileName, QWidget *parent) :
+SoundWindow::SoundWindow(QString fileName, QString title, QWidget *parent) :
 	DisplayWindow(parent)
 {
-	constructorInternals();
+	constructorInternals(title);
 	mWavDecoder = new WavDecoder(this);
 	bool opened = mWavDecoder->open(fileName);
 	qDebug() << opened;
@@ -24,8 +24,10 @@ SoundWindow::~SoundWindow()
 	delete mWavDecoder;
 }
 
-void SoundWindow::constructorInternals()
+void SoundWindow::constructorInternals(QString title)
 {
+	setWindowTitle(title);
+
 	mFiltersMenu = menuBar()->addMenu("Filters");
 
 	appendFilter(new AutoCorrelationFilter(this));

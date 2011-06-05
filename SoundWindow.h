@@ -12,7 +12,7 @@ class SoundWindow : public DisplayWindow
 {
 	Q_OBJECT
 public:
-	explicit SoundWindow(QString fileName, QWidget *parent = 0);
+	explicit SoundWindow(QString fileName, QString title, QWidget *parent = 0);
 	virtual ~SoundWindow();
 
 signals:
@@ -22,7 +22,7 @@ public slots:
 
 private:
 	void appendFilter(FilterInterface *filter);
-	void constructorInternals();
+	void constructorInternals(QString title);
 
 	QHash<QUuid, FilterInterface *> mFiltersHash;
 	QMenu *mFiltersMenu;

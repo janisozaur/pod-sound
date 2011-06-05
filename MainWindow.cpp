@@ -3,6 +3,7 @@
 #include "SoundWindow.h"
 
 #include <QFileDialog>
+#include <QFileInfo>
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -20,7 +21,8 @@ void MainWindow::on_actionOpen_triggered()
 {
 	QString fileName(QFileDialog::getOpenFileName(this, "Select WAV file", QDir::currentPath(), "WAV files (*.wav)"));
 	if (!fileName.isEmpty()) {
-		SoundWindow *s = new SoundWindow(fileName, this);
+		QFileInfo fi(fileName);
+		SoundWindow *s = new SoundWindow(fileName, fi.fileName(), this);
 		s->show();
 	}
 }
