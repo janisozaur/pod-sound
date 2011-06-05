@@ -16,11 +16,15 @@ QString AutoCorrelationFilter::name() const
 
 bool AutoCorrelationFilter::setup(const FilterData &data)
 {
-	AutoCorrelationSetupDialog dialog(q_check_ptr(qobject_cast<QWidget *>(parent()->parent())));
+	// parent's parent should be mainwindow
+	QWidget *dialogParent = qobject_cast<QWidget *>(parent()->parent());
+	dialogParent = q_check_ptr(dialogParent);
+	AutoCorrelationSetupDialog dialog(data.samples.at(0).size(), dialogParent);
 	if (dialog.exec() != QDialog::Accepted) {
 		return false;
 	}
 	mSamples = data.samples.mid(0, dialog.windowSize());
+	mStart = dialog.startM();
 	return true;
 }
 
@@ -32,7 +36,7 @@ DisplayWindow *AutoCorrelationFilter::apply(QString /*windowBaseName*/)
 		int m;
 		double max = -INFINITY;
 		const int N = mSamples.at(channel).size();
-		for (m = 1; m < N; m++) {
+		for (m = mStart; m < N; m++) {
 			double sum = 0;
 			for (int i = 0; i < N; i++) {
 				sum += mSamples.at(channel).at(i) * mSamples.at(channel).at((i + m) % N);

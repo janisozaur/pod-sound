@@ -18,6 +18,7 @@ public slots:
 
 private:
 	QVector<QVector<qint16> > mSamples;
+	int mStart;
 };
 
 #endif // AUTOCORRELATIONFILTER_H

@@ -9,8 +9,9 @@ class AutoCorrelationSetupDialog : public QDialog
 {
 	Q_OBJECT
 public:
-	AutoCorrelationSetupDialog(QWidget *parent = 0);
+	AutoCorrelationSetupDialog(int max, QWidget *parent = 0);
 	int windowSize() const;
+	int startM() const;
 
 signals:
 
@@ -18,6 +19,7 @@ public slots:
 
 private:
 	QSpinBox *mWindowSizeSpinBox;
+	QSpinBox *mStartMSpinBox;
 };
 
 #endif // AUTOCORRELATIONSETUPDIALOG_H
