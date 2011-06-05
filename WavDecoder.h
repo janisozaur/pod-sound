@@ -12,6 +12,8 @@ public:
 	WavDecoder(QObject *parent = 0);
 	bool open(QIODevice *dev);
 	bool open(QString fileName);
+	QVector<QVector<qint16> > samples() const;
+	QVector<QVector<qint16> > &samples();
 
 signals:
 

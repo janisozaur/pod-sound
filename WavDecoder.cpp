@@ -4,6 +4,8 @@
 #include <QMessageBox>
 #include <QFile>
 
+#include <QDebug>
+
 WavDecoder::WavDecoder(QObject *parent) :
 	QObject(parent)
 {
@@ -83,6 +85,18 @@ bool WavDecoder::open(QString fileName)
 	bool result = open(&f);
 	f.close();
 	return result;
+}
+
+QVector<QVector<qint16> > WavDecoder::samples() const
+{
+	qDebug() << "const samples";
+	return mSamples;
+}
+
+QVector<QVector<qint16> > &WavDecoder::samples()
+{
+	qDebug() << "non-const samples";
+	return mSamples;
 }
 
 QString WavDecoder::string(QDataStream *stream, int length) const
