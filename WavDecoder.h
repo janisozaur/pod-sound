@@ -11,6 +11,7 @@ class WavDecoder : public QObject
 public:
 	WavDecoder(QObject *parent = 0);
 	WavDecoder(const WavDecoder &other);
+	WavDecoder &operator=(const WavDecoder &other);
 	bool open(QIODevice *dev);
 	bool open(QString fileName);
 	QVector<QVector<qint16> > samples() const;
