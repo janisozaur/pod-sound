@@ -11,6 +11,18 @@ WavDecoder::WavDecoder(QObject *parent) :
 {
 }
 
+WavDecoder::WavDecoder(const WavDecoder &other) :
+	QObject(NULL),
+	mNumChannels(other.mNumChannels),
+	mSampleRate(other.mSampleRate),
+	mByteRate(other.mByteRate),
+	mBlockAlign(other.mBlockAlign),
+	mBitsPerSample(other.mBitsPerSample),
+	mNumSamples(other.mNumSamples),
+	mSamples(other.mSamples)
+{
+}
+
 bool WavDecoder::open(QIODevice *dev)
 {
 	try {
