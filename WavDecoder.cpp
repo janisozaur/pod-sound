@@ -16,7 +16,6 @@ WavDecoder::WavDecoder(const WavDecoder &other) :
 	mByteRate(other.mByteRate),
 	mBlockAlign(other.mBlockAlign),
 	mBitsPerSample(other.mBitsPerSample),
-	mNumSamples(other.mNumSamples),
 	mSamples(other.mSamples)
 {
 }
@@ -28,7 +27,6 @@ WavDecoder &WavDecoder::operator=(const WavDecoder &other)
 	this->mByteRate = other.mByteRate;
 	this->mBlockAlign = other.mBlockAlign;
 	this->mBitsPerSample = other.mBitsPerSample;
-	this->mNumSamples = other.mNumSamples;
 	this->mSamples = other.mSamples;
 	return *this;
 }
@@ -82,12 +80,12 @@ bool WavDecoder::open(QIODevice *dev)
 			stream.skipRawData(chunkSize);
 		}
 		stream >> chunkSize;
-		mNumSamples = chunkSize / ((mBitsPerSample / 8) * mNumChannels);
+		const unsigned int numSamples = chunkSize / ((mBitsPerSample / 8) * mNumChannels);
 		mSamples.resize(mNumChannels);
 		for (int i = 0; i < mNumChannels; i++) {
-			mSamples[i].reserve(mNumSamples);
+			mSamples[i].reserve(numSamples);
 		}
-		for (unsigned int sample = 0; sample < mNumSamples; sample++) {
+		for (unsigned int sample = 0; sample < numSamples; sample++) {
 			for (quint16 channel = 0; channel < mNumChannels; channel++) {
 				qint16 data;
 				stream >> data;
@@ -122,7 +120,7 @@ void WavDecoder::save(QIODevice *dev)
 		QDataStream stream(dev);
 		stream.setByteOrder(QDataStream::LittleEndian);
 		writeString(&stream, "RIFF");
-		quint32 chunk2Size = mNumSamples * mNumChannels * mBitsPerSample / 8;
+		quint32 chunk2Size = samplesCount() * mNumChannels * mBitsPerSample / 8;
 		stream << chunk2Size + 36;
 		writeString(&stream, "WAVE");
 		writeString(&stream, "fmt ");
@@ -195,9 +193,16 @@ quint16 WavDecoder::bitsPerSample() const
 	return mBitsPerSample;
 }
 
-unsigned int WavDecoder::samplesCount() const
+int WavDecoder::samplesCount() const
 {
-	return mNumSamples;
+	return mSamples.at(0).size();
+}
+
+void WavDecoder::setSamplesCount(int count)
+{
+	for (int channel = 0; channel < mSamples.size(); channel++) {
+		mSamples[channel].resize(count);
+	}
 }
 
 QString WavDecoder::readString(QDataStream *stream, int length) const

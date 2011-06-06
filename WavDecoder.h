@@ -23,7 +23,8 @@ public:
 	quint32 byteRate() const;
 	quint16 blockAlign() const;
 	quint16 bitsPerSample() const;
-	unsigned int samplesCount() const;
+	int samplesCount() const;
+	void setSamplesCount(int count);
 
 signals:
 
@@ -37,7 +38,6 @@ private:
 	quint32 mByteRate;
 	quint16 mBlockAlign;
 	quint16 mBitsPerSample;
-	unsigned int mNumSamples;
 	QVector<QVector<qint16> > mSamples;
 };
 
