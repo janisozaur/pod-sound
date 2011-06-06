@@ -6,6 +6,7 @@
 #include <QAction>
 #include <QMenu>
 #include <QMenuBar>
+#include <QFileDialog>
 
 #include <QDebug>
 
@@ -28,6 +29,11 @@ SoundWindow::~SoundWindow()
 void SoundWindow::constructorInternals(QString title)
 {
 	setWindowTitle(title);
+
+	QMenu *fileMenu = menuBar()->addMenu("File");
+	QAction *saveAction = new QAction("Save", this);
+	connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
+	fileMenu->addAction(saveAction);
 
 	mFiltersMenu = menuBar()->addMenu("Filters");
 
@@ -57,4 +63,12 @@ void SoundWindow::appendFilter(FilterInterface *filter)
 	v.setValue(filter->uuid());
 	menuAction->setData(v);
 	mFiltersMenu->addAction(menuAction);
+}
+
+void SoundWindow::save()
+{
+	QString fileName(QFileDialog::getSaveFileName(this, "Where do you want to save WAV", QDir::currentPath(), "WAV file (*.wav)"));
+	if (!fileName.isEmpty()) {
+		mWavDecoder->save(fileName);
+	}
 }
