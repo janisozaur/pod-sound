@@ -110,6 +110,56 @@ bool WavDecoder::open(QString fileName)
 	return result;
 }
 
+void WavDecoder::save(QIODevice *dev)
+{
+	try {
+		if (!dev->isOpen()) {
+			throw QString("input device is not opened");
+		}
+		if (!dev->isWritable()) {
+			throw QString("input device is not writeable");
+		}
+		QDataStream stream(dev);
+		stream.setByteOrder(QDataStream::LittleEndian);
+		writeString(&stream, "RIFF");
+		quint32 chunk2Size = mNumSamples * mNumChannels * mBitsPerSample / 8;
+		stream << chunk2Size + 36;
+		writeString(&stream, "WAVE");
+		writeString(&stream, "fmt ");
+		quint32 chunk1Size = 16;
+		stream << chunk1Size;
+		quint16 audioFormat = 1;
+		stream << audioFormat;
+		stream << mNumChannels;
+		stream << mSampleRate;
+		stream << mByteRate;
+		stream << mBlockAlign;
+		stream << mBitsPerSample;
+		writeString(&stream, "data");
+		stream << chunk2Size;
+		for (int sample = 0; sample < mSamples.at(0).size(); sample++) {
+			for (int channel = 0; channel < mSamples.size(); channel++) {
+				stream << mSamples.at(channel).at(sample);
+			}
+		}
+	} catch (QString &e) {
+		QMessageBox::critical(qobject_cast<QWidget *>(this), "Error with saving WAV", "There was an error with saving the file: " + e);
+	}
+}
+
+void WavDecoder::writeString(QDataStream *stream, QString string) const
+{
+	stream->writeRawData(string.toAscii(), string.length());
+}
+
+void WavDecoder::save(QString fileName)
+{
+	QFile f(fileName);
+	f.open(QIODevice::WriteOnly);
+	save(&f);
+	f.close();
+}
+
 QVector<QVector<qint16> > WavDecoder::samples() const
 {
 	return mSamples;

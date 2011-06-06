@@ -14,6 +14,8 @@ public:
 	WavDecoder &operator=(const WavDecoder &other);
 	bool open(QIODevice *dev);
 	bool open(QString fileName);
+	void save(QIODevice *dev);
+	void save(QString fileName);
 	QVector<QVector<qint16> > samples() const;
 	QVector<QVector<qint16> > &samples();
 	quint16 channelCount() const;
@@ -28,7 +30,8 @@ signals:
 public slots:
 
 private:
-	QString string(QDataStream *stream, int length) const;
+	QString readString(QDataStream *stream, int length) const;
+	void writeString(QDataStream *stream, QString string) const;
 	quint16 mNumChannels;
 	quint32 mSampleRate;
 	quint32 mByteRate;
