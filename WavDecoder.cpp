@@ -44,15 +44,15 @@ bool WavDecoder::open(QIODevice *dev)
 		}
 		QDataStream stream(dev);
 		stream.setByteOrder(QDataStream::LittleEndian);
-		if (string(&stream, 4) != "RIFF") {
+		if (readString(&stream, 4) != "RIFF") {
 			throw QString("input is not a RIFF file");
 		}
 		quint32 chunkSize;
 		stream >> chunkSize;
-		if (string(&stream, 4) != "WAVE") {
+		if (readString(&stream, 4) != "WAVE") {
 			throw QString("input is not a WAVE file");
 		}
-		if (string(&stream, 4) != "fmt ") {
+		if (readString(&stream, 4) != "fmt ") {
 			throw QString("fmt chunk is missing, malformed or misplaced");
 		}
 		stream >> chunkSize;
@@ -77,7 +77,7 @@ bool WavDecoder::open(QIODevice *dev)
 		{
 			throw QString("some header fields don't match");
 		}
-		while (string(&stream, 4) != "data") {
+		while (readString(&stream, 4) != "data") {
 			stream >> chunkSize;
 			stream.skipRawData(chunkSize);
 		}
@@ -150,7 +150,7 @@ unsigned int WavDecoder::samplesCount() const
 	return mNumSamples;
 }
 
-QString WavDecoder::string(QDataStream *stream, int length) const
+QString WavDecoder::readString(QDataStream *stream, int length) const
 {
 	char *buf = new char[length + 1];
 	int bytesRead = stream->readRawData(buf, length);
