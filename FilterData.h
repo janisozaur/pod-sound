@@ -4,9 +4,6 @@
 #include "ComplexArray.h"
 #include "WavDecoder.h"
 
-#include <QImage>
-#include <QVector>
-
 // this class is POD
 
 class FilterData
