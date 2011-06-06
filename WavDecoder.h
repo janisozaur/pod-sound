@@ -15,6 +15,12 @@ public:
 	bool open(QString fileName);
 	QVector<QVector<qint16> > samples() const;
 	QVector<QVector<qint16> > &samples();
+	quint16 channelCount() const;
+	quint32 sampleRate() const;
+	quint32 byteRate() const;
+	quint16 blockAlign() const;
+	quint16 bitsPerSample() const;
+	unsigned int samplesCount() const;
 
 signals:
 

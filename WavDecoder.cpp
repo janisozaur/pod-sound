@@ -27,7 +27,7 @@ bool WavDecoder::open(QIODevice *dev)
 {
 	try {
 		if (!dev->isOpen()) {
-			throw QString("input device is not open");
+			throw QString("input device is not opened");
 		}
 		if (!dev->isReadable()) {
 			throw QString("input device is not readable");
@@ -110,6 +110,36 @@ QVector<QVector<qint16> > &WavDecoder::samples()
 {
 	qDebug() << "non-const samples";
 	return mSamples;
+}
+
+quint16 WavDecoder::channelCount() const
+{
+	return mNumChannels;
+}
+
+quint32 WavDecoder::sampleRate() const
+{
+	return mSampleRate;
+}
+
+quint32 WavDecoder::byteRate() const
+{
+	return mByteRate;
+}
+
+quint16 WavDecoder::blockAlign() const
+{
+	return mBlockAlign;
+}
+
+quint16 WavDecoder::bitsPerSample() const
+{
+	return mBitsPerSample;
+}
+
+unsigned int WavDecoder::samplesCount() const
+{
+	return mNumSamples;
 }
 
 QString WavDecoder::string(QDataStream *stream, int length) const
