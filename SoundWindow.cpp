@@ -40,7 +40,7 @@ void SoundWindow::applyFilter(QAction *action)
 	FilterInterface *filter = mFiltersHash[action->data().value<QUuid>()];
 	qDebug() << "filter name:" << filter->name();
 	FilterData fd;
-	fd.wav = mWavDecoder;
+	fd.wav = *mWavDecoder;
 	if (filter->setup(fd)) {
 		DisplayWindow *dw = filter->apply(windowTitle());
 		q_check_ptr(dw)->show();
