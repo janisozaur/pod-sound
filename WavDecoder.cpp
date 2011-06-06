@@ -3,6 +3,7 @@
 #include <QDataStream>
 #include <QMessageBox>
 #include <QFile>
+#include <cmath>
 
 WavDecoder::WavDecoder(QObject *parent) :
 	QObject(parent)
@@ -156,6 +157,25 @@ void WavDecoder::save(QString fileName)
 	f.open(QIODevice::WriteOnly);
 	save(&f);
 	f.close();
+}
+
+qreal WavDecoder::generateSine(int start, int count, qreal freq, qreal phase)
+{
+	if (start + count > samplesCount()) {
+		setSamplesCount(start + count);
+	}
+	qreal omega = 2 * M_PI * freq;
+	qreal time = 0;
+	qreal delta = 1.0 / mSampleRate;
+	for (int i = 0; i < count; i++) {
+		qreal currentPhase = omega * time + phase;
+		time += delta;
+		qint16 val = sin(currentPhase) * 32767;
+		for (int channel = 0; channel < mNumChannels; channel++) {
+			mSamples[channel][i + start] = val;
+		}
+	}
+	return omega * time + phase;
 }
 
 QVector<QVector<qint16> > WavDecoder::samples() const

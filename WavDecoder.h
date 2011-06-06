@@ -25,6 +25,7 @@ public:
 	quint16 bitsPerSample() const;
 	int samplesCount() const;
 	void setSamplesCount(int count);
+	qreal generateSine(int start, int count, qreal freq, qreal phase);
 
 signals:
 
