@@ -2,6 +2,7 @@
 #define FILTERDATA_H
 
 #include "ComplexArray.h"
+#include "WavDecoder.h"
 
 #include <QImage>
 #include <QVector>
@@ -12,7 +13,7 @@ class FilterData
 {
 public:
 	ComplexArray transformData;
-	QVector<QVector<qint16> > samples;
+	WavDecoder wav;
 };
 
 

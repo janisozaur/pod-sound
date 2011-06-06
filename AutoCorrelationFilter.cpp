@@ -19,11 +19,11 @@ bool AutoCorrelationFilter::setup(const FilterData &data)
 	// parent's parent should be mainwindow
 	QWidget *dialogParent = qobject_cast<QWidget *>(parent()->parent());
 	dialogParent = q_check_ptr(dialogParent);
-	AutoCorrelationSetupDialog dialog(data.samples.at(0).size(), dialogParent);
+	AutoCorrelationSetupDialog dialog(data.wav.samples().at(0).size(), dialogParent);
 	if (dialog.exec() != QDialog::Accepted) {
 		return false;
 	}
-	mSamples = data.samples.mid(0, dialog.windowSize());
+	mSamples = data.wav.samples().mid(0, dialog.windowSize());
 	mStart = dialog.startM();
 	return true;
 }
