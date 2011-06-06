@@ -18,7 +18,9 @@ SOURCES += main.cpp\
     AutoCorrelationFilter.cpp \
     AutoCorrelationSetupDialog.cpp \
     DisplayWindow.cpp \
-    SoundWindow.cpp
+    SoundWindow.cpp \
+    FFT.cpp \
+    CombFilter.cpp
 
 HEADERS  += MainWindow.h \
     WavDecoder.h \
@@ -29,6 +31,8 @@ HEADERS  += MainWindow.h \
     AutoCorrelationFilter.h \
     AutoCorrelationSetupDialog.h \
     DisplayWindow.h \
-    SoundWindow.h
+    SoundWindow.h \
+    FFT.h \
+    CombFilter.h
 
 FORMS    += MainWindow.ui

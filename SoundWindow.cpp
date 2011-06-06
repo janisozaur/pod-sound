@@ -1,6 +1,7 @@
 #include "SoundWindow.h"
 #include "FilterInterface.h"
 #include "AutoCorrelationFilter.h"
+#include "CombFilter.h"
 
 #include <QAction>
 #include <QMenu>
@@ -31,6 +32,7 @@ void SoundWindow::constructorInternals(QString title)
 	mFiltersMenu = menuBar()->addMenu("Filters");
 
 	appendFilter(new AutoCorrelationFilter(this));
+	appendFilter(new CombFilter(this));
 
 	connect(mFiltersMenu, SIGNAL(triggered(QAction*)), this, SLOT(applyFilter(QAction*)));
 }
