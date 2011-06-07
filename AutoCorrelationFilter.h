@@ -20,6 +20,7 @@ private:
 	QVector<QVector<qint16> > mSamples;
 	WavDecoder mWav;
 	int mStart;
+	int mWindowSize;
 };
 
 #endif // AUTOCORRELATIONFILTER_H
