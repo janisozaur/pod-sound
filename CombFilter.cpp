@@ -1,6 +1,6 @@
 #include "CombFilter.h"
 #include "FFT.h"
-#include "DisplayWindow.h"
+#include "SoundWindow.h"
 #include "CombFilterSetupDialog.h"
 
 #include <QStringList>
@@ -89,7 +89,10 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	int msecs = t.elapsed();
 	qDebug() << "time taken:" << msecs << "miliseconds";
 	qDebug() << "found f:" << fMax;
-	return new DisplayWindow(q_check_ptr(qobject_cast<QWidget *>(parent()->parent())));;
+	QString fString(QString::number(fMax) + "Hz");
+	QWidget *newParent = q_check_ptr(qobject_cast<QWidget *>(parent()->parent()));
+	return new SoundWindow(mWav, fString, windowBaseName + ", " + name(),
+						   newParent);
 }
 
 QVector<Complex> CombFilter::generateTriangle(int duration, qreal freq, qreal sampleRate)
