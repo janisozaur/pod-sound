@@ -41,57 +41,67 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	int size = mWindowSize;
 	qDebug() << "size:" << size;
 	complexData.reserve(size);
-	for (int i = 0; i < size; i++) {
-		complexData << Complex(mWav.samples().at(0).at(i), 0);
-	}
-	{
-		FFT fft;
-		fft.rearrange(complexData);
-		fft.transform(complexData, false);
-	}
-	/*QStringList str;
-	for (int i = 0; i < complexData.size(); i++) {
-		str << QString::number(complexData.at(i).real());
-	}
-	qDebug() << str.join(",");*/
-	QVector<qreal> realData;
-	realData.reserve(complexData.size());
-	for (int i = 0; i < size; i++) {
-		realData << complexData.at(i).real();
-	}
-	const int steps = (mStop - mStart) / mStep;
-	quint32 sr = mWav.sampleRate();
-	qreal sumMax = -INFINITY;
-	qreal fMax = -INFINITY;
-	QElapsedTimer t;
-	t.start();
-	#pragma omp parallel for
-	for (int w = 0; w < steps; w++) {
-		qreal f = mStart + mStep * w;
-		QVector<Complex> c = generateTriangle(size, f, sr);
-		/*QVector<Complex> c2;
-		c2.reserve(size);
+	const int windows = (mWav.samplesCount() + mWindowSize - 1) / mWindowSize;
+	QStringList fList;
+	for (int window = 0; window < windows; window++) {
+		complexData.resize(0);
 		for (int i = 0; i < size; i++) {
-			c2 << Complex(c.at(i), 0);
-		}*/
-		FFT fft;
-		fft.rearrange(c);
-		fft.transform(c, false);
-		qreal sum = 0;
+			Complex c(mWav.samples().at(0).at(i + window * mWindowSize), 0);
+			complexData << c;
+		}
+		{
+			FFT fft;
+			fft.rearrange(complexData);
+			fft.transform(complexData, false);
+		}
+		/*QStringList str;
+		for (int i = 0; i < complexData.size(); i++) {
+			str << QString::number(complexData.at(i).real());
+		}
+		qDebug() << str.join(",");*/
+		QVector<qreal> realData;
+		realData.reserve(complexData.size());
 		for (int i = 0; i < size; i++) {
-			sum += c.at(i).real() * realData.at(i);
+			realData << complexData.at(i).real();
 		}
-		if (sum > sumMax) {
-			sumMax = sum;
-			fMax = f;
+		const int steps = (mStop - mStart) / mStep;
+		quint32 sr = mWav.sampleRate();
+		qreal sumMax = -INFINITY;
+		qreal fMax = -INFINITY;
+		QElapsedTimer t;
+		t.start();
+		#pragma omp parallel for
+		for (int w = 0; w < steps; w++) {
+			qreal f = mStart + mStep * w;
+			QVector<Complex> c = generateTriangle(size, f, sr);
+			/*QVector<Complex> c2;
+			c2.reserve(size);
+			for (int i = 0; i < size; i++) {
+				c2 << Complex(c.at(i), 0);
+			}*/
+			FFT fft;
+			fft.rearrange(c);
+			fft.transform(c, false);
+			qreal sum = 0;
+			for (int i = 0; i < size; i++) {
+				sum += c.at(i).real() * realData.at(i);
+			}
+			if (sum > sumMax) {
+				sumMax = sum;
+				fMax = f;
+			}
 		}
+		int msecs = t.elapsed();
+		qDebug() << "window" << window << "of" << windows << "(" <<
+					(int)((qreal)window * 100 / (qreal) windows) <<
+					"%). time taken:" << msecs << "miliseconds";
+		qDebug() << "found f:" << fMax;
+		fList << QString::number(fMax) + "Hz";
+		mWav.generateSine(window * mWindowSize, (window + 1) * mWindowSize, fMax, 0);
 	}
-	int msecs = t.elapsed();
-	qDebug() << "time taken:" << msecs << "miliseconds";
-	qDebug() << "found f:" << fMax;
-	QString fString(QString::number(fMax) + "Hz");
 	QWidget *newParent = q_check_ptr(qobject_cast<QWidget *>(parent()->parent()));
-	mWav.generateSine(0, mWav.samplesCount(), fMax, 0);
+	QString fString(fList.join(", "));
+	qDebug() << fString;
 	return new SoundWindow(mWav, fString, windowBaseName + ", " + name(),
 						   newParent);
 }
