@@ -43,6 +43,7 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	complexData.reserve(size);
 	const int windows = (mWav.samplesCount() + mWindowSize - 1) / mWindowSize;
 	QStringList fList;
+	qreal phase = 0;
 	for (int window = 0; window < windows; window++) {
 		complexData.resize(0);
 		for (int i = 0; i < size; i++) {
@@ -97,7 +98,8 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 					"%). time taken:" << msecs << "miliseconds";
 		qDebug() << "found f:" << fMax;
 		fList << QString::number(fMax) + "Hz";
-		mWav.generateSine(window * mWindowSize, (window + 1) * mWindowSize, fMax, 0);
+		phase = mWav.generateSine(window * mWindowSize,
+								  (window + 1) * mWindowSize, fMax, phase);
 	}
 	QWidget *newParent = q_check_ptr(qobject_cast<QWidget *>(parent()->parent()));
 	QString fString(fList.join(", "));
