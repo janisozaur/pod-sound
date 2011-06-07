@@ -35,8 +35,8 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	complexData.resize(4096);
 	fft.rearrange(complexData);
 	fft.transform(complexData, false);
-	QStringList str;
-	/*for (int i = 0; i < complexData.size(); i++) {
+	/*QStringList str;
+	for (int i = 0; i < complexData.size(); i++) {
 		str << QString::number(complexData.at(i).real());
 	}
 	qDebug() << str.join(",");*/
