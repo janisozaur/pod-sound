@@ -164,7 +164,7 @@ void WavDecoder::save(QString fileName)
 qreal WavDecoder::generateSine(int start, int count, qreal freq, qreal phase)
 {
 	if (start + count > samplesCount()) {
-		setSamplesCount(start + count);
+		count = samplesCount() - start;
 	}
 	qreal omega = 2 * M_PI * freq;
 	qreal time = 0;
