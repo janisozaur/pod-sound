@@ -18,6 +18,7 @@ public slots:
 
 private:
 	QVector<QVector<qint16> > mSamples;
+	WavDecoder mWav;
 	int mStart;
 };
 

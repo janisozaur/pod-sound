@@ -1,6 +1,6 @@
 #include "AutoCorrelationFilter.h"
 #include "AutoCorrelationSetupDialog.h"
-#include "DisplayWindow.h"
+#include "SoundWindow.h"
 
 #include <QDebug>
 
@@ -24,14 +24,16 @@ bool AutoCorrelationFilter::setup(const FilterData &data)
 		return false;
 	}
 	mSamples = data.wav.samples().mid(0, dialog.windowSize());
+	mWav = data.wav;
 	mStart = dialog.startM();
 	return true;
 }
 
-DisplayWindow *AutoCorrelationFilter::apply(QString /*windowBaseName*/)
+DisplayWindow *AutoCorrelationFilter::apply(QString windowBaseName)
 {
 	qDebug() << "parent" << parent();
 	qDebug() << "parents parent" << parent()->parent();
+	qreal maxM = -INFINITY;
 	for (int channel = 0; channel < mSamples.size(); channel++) {
 		int m;
 		double max = -INFINITY;
@@ -49,6 +51,14 @@ DisplayWindow *AutoCorrelationFilter::apply(QString /*windowBaseName*/)
 			}
 		}
 		qDebug() << "m for channel" << channel << ":" << m;
+		if (m > maxM) {
+			maxM = m;
+		}
 	}
-	return new DisplayWindow(q_check_ptr(qobject_cast<QWidget *>(parent()->parent())));
+	qreal f = (qreal)mWav.sampleRate() / maxM;
+	mWav.generateSine(0, mWav.samplesCount(), f, 0);
+	QString fString(QString::number(f) + "Hz");
+	QWidget *newParent = q_check_ptr(qobject_cast<QWidget *>(parent()->parent()));
+	return new SoundWindow(mWav, fString, windowBaseName + ", " + name(),
+						   newParent);
 }
