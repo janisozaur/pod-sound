@@ -8,11 +8,15 @@
 #include <QUuid>
 #include <QHash>
 
+class QLabel;
+
 class SoundWindow : public DisplayWindow
 {
 	Q_OBJECT
 public:
 	explicit SoundWindow(QString fileName, QString title, QWidget *parent = 0);
+	explicit SoundWindow(WavDecoder wav, QString display, QString title,
+						 QWidget *parent = 0);
 	virtual ~SoundWindow();
 
 signals:
@@ -28,6 +32,7 @@ private:
 	QHash<QUuid, FilterInterface *> mFiltersHash;
 	QMenu *mFiltersMenu;
 	WavDecoder *mWavDecoder;
+	QLabel *mDisplayLabel;
 };
 
 #endif // SOUNDWINDOW_H

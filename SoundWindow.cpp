@@ -7,6 +7,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QFileDialog>
+#include <QLabel>
 
 #include <QDebug>
 
@@ -19,6 +20,16 @@ SoundWindow::SoundWindow(QString fileName, QString title, QWidget *parent) :
 	mWavDecoder = new WavDecoder(this);
 	bool opened = mWavDecoder->open(fileName);
 	qDebug() << opened;
+}
+
+SoundWindow::SoundWindow(WavDecoder wav, QString display, QString title,
+						 QWidget *parent) :
+	DisplayWindow(parent)
+{
+	constructorInternals(title);
+	mWavDecoder = new WavDecoder(wav);
+	mWavDecoder->setParent(this);
+	mDisplayLabel->setText(display);
 }
 
 SoundWindow::~SoundWindow()
@@ -34,6 +45,9 @@ void SoundWindow::constructorInternals(QString title)
 	QAction *saveAction = new QAction("Save", this);
 	connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
 	fileMenu->addAction(saveAction);
+
+	mDisplayLabel = new QLabel(this);
+	this->setCentralWidget(mDisplayLabel);
 
 	mFiltersMenu = menuBar()->addMenu("Filters");
 
