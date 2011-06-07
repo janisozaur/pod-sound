@@ -1,0 +1,59 @@
+\documentclass{classrep}
+\usepackage[utf8]{inputenc}
+\usepackage[pdftex]{graphicx}
+\usepackage[polish]{babel}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{multicol}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{hyperref}
+
+\studycycle{Informatyka, studia dzienne, II st.}
+\coursesemester{I}
+
+\coursename{Metody Obliczeniowe Optymalizacji}
+\courseyear{2010/2011}
+
+\courseteacher{}
+\coursegroup{czwartek, 14:15}
+\svnurl{http://serce.ics.p.lodz.pl/svn/labs/poid/bsat_wt1415/micmic}
+
+\author{%
+  \studentinfo{Michał Janiszewski}{169485}
+}
+
+\title{Zadanie 4: Programowanie liniowe}
+\begin{document}
+
+\maketitle
+
+\section{Cel zadania}
+Celem zadania było stworzenie programu, który wczyta i zdekoduje pliki w formacie WAV oraz dokona wykrycia częstotliwości podstawowych w kolejnych chwilach czasowych za pomocą metod:
+\begin{itemize}
+ \item w dziedzinie czasu \ppauza autokorelacji,
+ \item w dziedzinie częstotliwości \ppauza filtracji grzebieniowej.
+\end{itemize}
+
+\section{Fale dźwiękowe}
+Fala dźwiękowa to podłużna (drgająca w kierunku, w którym się przemieszcza) fala mechaniczna, która może rozchodzić się w różnych ośrodkach \ppauza stałych, ciekłych i gazowych. Pomimo tego, że częstotliwość drgań ograniczona jest tylko ośrodkiem, w którym przemieszcza się fala, mianem fal dźwiękowych określamy tylko te fale, których zakres częstotliwości pokrywa się ze zdolnością słyszenia przez ludzi, zakres ten wynosi 20Hz - 20kHz i nazywany jest zakresem słyszalnym. Fale z tego zakresu oddziałując na ucho, a przez ucho na mózg wywołują wrażenie słyszenia.
+
+W dźwiękach będących wielotonami harmonicznymi, tzn. takie, które posiadają jedną podstawową częstotliwość i kilka jej wielokrotności, powstaje fala stojąca. Podstawową dla człowieka cechą takiego dźwięku jest częstotliwość podstawowa, która określa wysokość dźwięku.
+
+\section{Detekcja częstotliowści podstawowej}
+Istnieje wiele metod detekcji częstotliwości podstawowej, w przydzielonym wariancie zrealizowałem przedstawione poniżej metody:
+\subsection{Autokorelacja}
+Metoda ta polega na stworzeniu iloczynu skalarnego zadanego dźwięku oraz tego samego dźwięku z pewnym przesunięciem w czasie:
+\begin{equation}
+ c(m) = \displaystyle \sum^{N - 1}_{n = 0} x(n) \cdot x(n + m)
+\end{equation}
+gdzie:
+\begin{description}
+ \item[$m$] zadane przesunięcie,
+ \item[$c$] funkcja iloczynu skalarnego dźwięku,
+ \item[$x$] dyskretny sygnał dźwiękowy z $N$ wartościami.
+\end{description}
+
+\end{document}
