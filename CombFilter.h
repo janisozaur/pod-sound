@@ -9,7 +9,7 @@ class CombFilter : public FilterInterface
 public:
 	explicit CombFilter(QObject *parent = 0);
 	virtual QString name() const;
-	QVector<qreal> generateTriangle(int duration, qreal freq, qreal sampleRate);
+	QVector<Complex> generateTriangle(int duration, qreal freq, qreal sampleRate);
 
 signals:
 

@@ -61,18 +61,18 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	#pragma omp parallel for
 	for (int w = 0; w < steps; w++) {
 		qreal f = fStart + fStep * w;
-		QVector<qreal> c = generateTriangle(size, f, sr);
-		QVector<Complex> c2;
+		QVector<Complex> c = generateTriangle(size, f, sr);
+		/*QVector<Complex> c2;
 		c2.reserve(size);
 		for (int i = 0; i < size; i++) {
 			c2 << Complex(c.at(i), 0);
-		}
+		}*/
 		FFT fft;
-		fft.rearrange(c2);
-		fft.transform(c2, false);
+		fft.rearrange(c);
+		fft.transform(c, false);
 		qreal sum = 0;
 		for (int i = 0; i < size; i++) {
-			sum += c2.at(i).real() * realData.at(i);
+			sum += c.at(i).real() * realData.at(i);
 		}
 		if (sum > sumMax) {
 			sumMax = sum;
@@ -85,9 +85,9 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	return new DisplayWindow(q_check_ptr(qobject_cast<QWidget *>(parent()->parent())));;
 }
 
-QVector<qreal> CombFilter::generateTriangle(int duration, qreal freq, qreal sampleRate)
+QVector<Complex> CombFilter::generateTriangle(int duration, qreal freq, qreal sampleRate)
 {
-	QVector<qreal> samples;
+	QVector<Complex> samples;
 	const qreal omega = sampleRate / (freq * 2);
 	//qDebug() << "omega:" << omega;
 	//QStringList str;
@@ -95,7 +95,7 @@ QVector<qreal> CombFilter::generateTriangle(int duration, qreal freq, qreal samp
 		qreal val;
 		// http://en.wikipedia.org/wiki/Triangle_wave
 		val = (2.0 / omega) * (i - omega * (qreal)((int)(i / omega + 0.5))) * (((int)(i / omega + 0.5)) % 2 == 1 ? -1 : 1);
-		samples << val;
+		samples << Complex(val, 0);
 		//str << QString::number(val);
 	}
 	//qDebug() << str.join(",");
