@@ -98,8 +98,8 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 					"%). time taken:" << msecs << "miliseconds";
 		qDebug() << "found f:" << fMax;
 		fList << QString::number(fMax) + "Hz";
-		phase = mWav.generateSine(window * mWindowSize,
-								  (window + 1) * mWindowSize, fMax, phase);
+		phase = mWav.generateSine(window * mWindowSize, mWindowSize, fMax,
+								  phase);
 	}
 	QWidget *newParent = q_check_ptr(qobject_cast<QWidget *>(parent()->parent()));
 	QString fString(fList.join(", "));
