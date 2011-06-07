@@ -16,13 +16,13 @@ AutoCorrelationSetupDialog::AutoCorrelationSetupDialog(int max,
 	mWindowSizeSpinBox = new QSpinBox(inputWidget);
 	mWindowSizeSpinBox->setMaximum(max);
 	mWindowSizeSpinBox->setMinimum(1);
-	mWindowSizeSpinBox->setValue(mWindowSizeSpinBox->maximum());
+	mWindowSizeSpinBox->setValue(qMin(4096, mWindowSizeSpinBox->maximum()));
 	form->addRow("Window size", mWindowSizeSpinBox);
 
 	mStartMSpinBox = new QSpinBox(inputWidget);
 	mStartMSpinBox->setMaximum(max);
 	mStartMSpinBox->setMinimum(1);
-	mStartMSpinBox->setValue(mStartMSpinBox->maximum());
+	mStartMSpinBox->setValue(qMin(10, mStartMSpinBox->maximum()));
 	form->addRow("Starting m", mStartMSpinBox);
 
 	vbl->addWidget(inputWidget);
