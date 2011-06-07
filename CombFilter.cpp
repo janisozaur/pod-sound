@@ -3,6 +3,7 @@
 #include "DisplayWindow.h"
 
 #include <QStringList>
+#include <QElapsedTimer>
 
 #include <QDebug>
 
@@ -24,7 +25,6 @@ bool CombFilter::setup(const FilterData &data)
 
 DisplayWindow *CombFilter::apply(QString windowBaseName)
 {
-	FFT fft;
 	QVector<Complex> complexData;
 	int size = mWav.samples().at(0).size();
 	size = 4096;
@@ -34,8 +34,11 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 		complexData << Complex(mWav.samples().at(0).at(i), 0);
 	}
 	complexData.resize(4096);
-	fft.rearrange(complexData);
-	fft.transform(complexData, false);
+	{
+		FFT fft;
+		fft.rearrange(complexData);
+		fft.transform(complexData, false);
+	}
 	/*QStringList str;
 	for (int i = 0; i < complexData.size(); i++) {
 		str << QString::number(complexData.at(i).real());
@@ -49,16 +52,21 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	qreal fStart = 1;
 	qreal fStop = 10000;
 	qreal fStep = 1;
+	const int steps = (fStop - fStart) / fStep;
 	quint32 sr = mWav.sampleRate();
 	qreal sumMax = -INFINITY;
 	qreal fMax = -INFINITY;
-	for (qreal f = fStart; f < fStop; f += fStep) {
+	QElapsedTimer t;
+	t.start();
+	for (int w = 0; w < steps; w++) {
+		qreal f = fStart + fStep * w;
 		QVector<qreal> c = generateTriangle(size, f, sr);
 		QVector<Complex> c2;
 		c2.reserve(size);
 		for (int i = 0; i < size; i++) {
 			c2 << Complex(c.at(i), 0);
 		}
+		FFT fft;
 		fft.rearrange(c2);
 		fft.transform(c2, false);
 		qreal sum = 0;
@@ -70,6 +78,8 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 			fMax = f;
 		}
 	}
+	int msecs = t.elapsed();
+	qDebug() << "time taken:" << msecs << "miliseconds";
 	qDebug() << "found f:" << fMax;
 	return new DisplayWindow(q_check_ptr(qobject_cast<QWidget *>(parent()->parent())));;
 }
