@@ -24,6 +24,7 @@ signals:
 public slots:
 	void applyFilter(QAction *action);
 	void save();
+	void play();
 
 private:
 	void appendFilter(FilterInterface *filter);

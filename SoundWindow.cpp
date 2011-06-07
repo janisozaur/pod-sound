@@ -42,9 +42,14 @@ void SoundWindow::constructorInternals(QString title)
 	setWindowTitle(title);
 
 	QMenu *fileMenu = menuBar()->addMenu("File");
+
 	QAction *saveAction = new QAction("Save", this);
 	connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
 	fileMenu->addAction(saveAction);
+
+	QAction *playAction = new QAction("Play", this);
+	connect(playAction, SIGNAL(triggered()), this, SLOT(play()));
+	fileMenu->addAction(playAction);
 
 	mDisplayLabel = new QLabel(this);
 	this->setCentralWidget(mDisplayLabel);
@@ -85,4 +90,9 @@ void SoundWindow::save()
 	if (!fileName.isEmpty()) {
 		mWavDecoder->save(fileName);
 	}
+}
+
+void SoundWindow::play()
+{
+	mWavDecoder->play();
 }
