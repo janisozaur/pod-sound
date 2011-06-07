@@ -19,6 +19,10 @@ public slots:
 
 private:
 	WavDecoder mWav;
+	qreal mStart;
+	qreal mStop;
+	qreal mStep;
+	int mWindowSize;
 };
 
 #endif // COMBFILTER_H

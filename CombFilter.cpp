@@ -1,6 +1,7 @@
 #include "CombFilter.h"
 #include "FFT.h"
 #include "DisplayWindow.h"
+#include "CombFilterSetupDialog.h"
 
 #include <QStringList>
 #include <QElapsedTimer>
@@ -19,21 +20,30 @@ QString CombFilter::name() const
 
 bool CombFilter::setup(const FilterData &data)
 {
+	// parent's parent should be mainwindow
+	QWidget *dialogParent = qobject_cast<QWidget *>(parent()->parent());
+	CombFilterSetupDialog d(data.wav.samples().at(0).size(), data.wav.sampleRate(),
+							dialogParent);
+	if (d.exec() != QDialog::Accepted) {
+		return false;
+	}
 	mWav = data.wav;
+	mStart = d.start();
+	mStop = d.stop();
+	mStep = d.step();
+	mWindowSize = d.windowSize();
 	return true;
 }
 
 DisplayWindow *CombFilter::apply(QString windowBaseName)
 {
 	QVector<Complex> complexData;
-	int size = mWav.samples().at(0).size();
-	size = 4096;
+	int size = mWindowSize;
 	qDebug() << "size:" << size;
 	complexData.reserve(size);
 	for (int i = 0; i < size; i++) {
 		complexData << Complex(mWav.samples().at(0).at(i), 0);
 	}
-	complexData.resize(4096);
 	{
 		FFT fft;
 		fft.rearrange(complexData);
@@ -49,10 +59,7 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	for (int i = 0; i < size; i++) {
 		realData << complexData.at(i).real();
 	}
-	qreal fStart = 1;
-	qreal fStop = 10000;
-	qreal fStep = 1;
-	const int steps = (fStop - fStart) / fStep;
+	const int steps = (mStop - mStart) / mStep;
 	quint32 sr = mWav.sampleRate();
 	qreal sumMax = -INFINITY;
 	qreal fMax = -INFINITY;
@@ -60,7 +67,7 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	t.start();
 	#pragma omp parallel for
 	for (int w = 0; w < steps; w++) {
-		qreal f = fStart + fStep * w;
+		qreal f = mStart + mStep * w;
 		QVector<Complex> c = generateTriangle(size, f, sr);
 		/*QVector<Complex> c2;
 		c2.reserve(size);

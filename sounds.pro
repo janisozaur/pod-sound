@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     DisplayWindow.cpp \
     SoundWindow.cpp \
     FFT.cpp \
-    CombFilter.cpp
+    CombFilter.cpp \
+    CombFilterSetupDialog.cpp
 
 HEADERS  += MainWindow.h \
     WavDecoder.h \
@@ -33,7 +34,8 @@ HEADERS  += MainWindow.h \
     DisplayWindow.h \
     SoundWindow.h \
     FFT.h \
-    CombFilter.h
+    CombFilter.h \
+    CombFilterSetupDialog.h
 
 FORMS    += MainWindow.ui
 
