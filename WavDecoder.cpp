@@ -3,6 +3,8 @@
 #include <QDataStream>
 #include <QMessageBox>
 #include <QFile>
+#include <QTemporaryFile>
+#include <QProcess>
 #include <cmath>
 
 WavDecoder::WavDecoder(QObject *parent) :
@@ -176,6 +178,23 @@ qreal WavDecoder::generateSine(int start, int count, qreal freq, qreal phase)
 		}
 	}
 	return omega * time + phase;
+}
+
+void WavDecoder::play()
+{
+	QTemporaryFile f;
+	bool b = f.open();
+	Q_UNUSED(b);
+	qDebug("playing %s", f.fileName().toAscii().constData());
+	save(&f);
+	f.flush();
+	QProcess p(this);
+	p.start("mplayer", QStringList() << f.fileName());
+	p.waitForStarted();
+	p.waitForFinished();
+	qDebug("%s", p.readAll().constData());
+	qDebug("playing finished");
+	f.close();
 }
 
 QVector<QVector<qint16> > WavDecoder::samples() const

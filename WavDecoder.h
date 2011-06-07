@@ -30,6 +30,7 @@ public:
 signals:
 
 public slots:
+	void play();
 
 private:
 	QString readString(QDataStream *stream, int length) const;
