@@ -58,6 +58,7 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	qreal fMax = -INFINITY;
 	QElapsedTimer t;
 	t.start();
+	#pragma omp parallel for
 	for (int w = 0; w < steps; w++) {
 		qreal f = fStart + fStep * w;
 		QVector<qreal> c = generateTriangle(size, f, sr);

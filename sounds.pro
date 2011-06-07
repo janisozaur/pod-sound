@@ -36,3 +36,6 @@ HEADERS  += MainWindow.h \
     CombFilter.h
 
 FORMS    += MainWindow.ui
+
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -lgomp
