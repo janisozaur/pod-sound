@@ -29,7 +29,7 @@ CombFilterSetupDialog::CombFilterSetupDialog(int max, double fmax,
 	mStopSpinBox = new QDoubleSpinBox(inputWidget);
 	mStopSpinBox->setMaximum(fmax);
 	mStopSpinBox->setMinimum(1);
-	mStopSpinBox->setValue(qMin(1000.0, mStopSpinBox->maximum()));
+	mStopSpinBox->setValue(qMin(2000.0, mStopSpinBox->maximum()));
 	form->addRow("Ending frequency", mStopSpinBox);
 
 	mStepSpinBox = new QDoubleSpinBox(inputWidget);
