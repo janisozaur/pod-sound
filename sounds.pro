@@ -39,5 +39,5 @@ HEADERS  += MainWindow.h \
 
 FORMS    += MainWindow.ui
 
-QMAKE_CXXFLAGS += -fopenmp
+QMAKE_CXXFLAGS += -fopenmp -mtune=core2 -march=core2
 LIBS += -lgomp
