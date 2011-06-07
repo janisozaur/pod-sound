@@ -41,6 +41,36 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 		str << QString::number(complexData.at(i).real());
 	}
 	qDebug() << str.join(",");*/
+	QVector<qreal> realData;
+	realData.reserve(complexData.size());
+	for (int i = 0; i < size; i++) {
+		realData << complexData.at(i).real();
+	}
+	qreal fStart = 1;
+	qreal fStop = 10000;
+	qreal fStep = 1;
+	quint32 sr = mWav.sampleRate();
+	qreal sumMax = -INFINITY;
+	qreal fMax = -INFINITY;
+	for (qreal f = fStart; f < fStop; f += fStep) {
+		QVector<qreal> c = generateTriangle(size, f, sr);
+		QVector<Complex> c2;
+		c2.reserve(size);
+		for (int i = 0; i < size; i++) {
+			c2 << Complex(c.at(i), 0);
+		}
+		fft.rearrange(c2);
+		fft.transform(c2, false);
+		qreal sum = 0;
+		for (int i = 0; i < size; i++) {
+			sum += c2.at(i).real() * realData.at(i);
+		}
+		if (sum > sumMax) {
+			sumMax = sum;
+			fMax = f;
+		}
+	}
+	qDebug() << "found f:" << fMax;
 	return new DisplayWindow(q_check_ptr(qobject_cast<QWidget *>(parent()->parent())));;
 }
 
