@@ -27,6 +27,7 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	FFT fft;
 	QVector<Complex> complexData;
 	int size = mWav.samples().at(0).size();
+	size = 4096;
 	qDebug() << "size:" << size;
 	complexData.reserve(size);
 	for (int i = 0; i < size; i++) {
