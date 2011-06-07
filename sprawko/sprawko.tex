@@ -19,7 +19,7 @@
 
 \courseteacher{}
 \coursegroup{czwartek, 14:15}
-\svnurl{http://serce.ics.p.lodz.pl/svn/labs/poid/bsat_wt1415/micmic}
+\svnurl{http://serce.ics.p.lodz.pl/svn/labs/poid/bsat_wt1415/micmic/janiszewski}
 
 \author{%
   \studentinfo{Michał Janiszewski}{169485}
@@ -45,6 +45,7 @@ W dźwiękach będących wielotonami harmonicznymi, tzn. takie, które posiadaj�
 \section{Detekcja częstotliowści podstawowej}
 Istnieje wiele metod detekcji częstotliwości podstawowej, w przydzielonym wariancie zrealizowałem przedstawione poniżej metody:
 \subsection{Autokorelacja}
+\label{sec.autocorrelation}
 Metoda ta polega na stworzeniu iloczynu skalarnego zadanego dźwięku oraz tego samego dźwięku z pewnym przesunięciem w czasie:
 \begin{equation}
  c(m) = \displaystyle \sum^{N - 1}_{n = 0} x(n) \cdot x(n + m)
@@ -55,5 +56,111 @@ gdzie:
  \item[$c$] funkcja iloczynu skalarnego dźwięku,
  \item[$x$] dyskretny sygnał dźwiękowy z $N$ wartościami.
 \end{description}
+
+Należy znaleźć pierwsze maksimum funkcji $c$, a następnie na podstawie próbkowania wyznaczyć częstotliwość.
+
+\subsection{Filtracja grzebieniowa}
+\label{sec.comb}
+Metoda ta polega na zastosowaniu splotu sygnału wejściowego z pewnym zadanym sygnałem określającym funkcję grzebieniową \ppauza wykorzystałem w tym celu sygnał trójkątny. Dla zadanego okna poszukiwana jest maksymalna wartość sumy takiego splotu. Regulowana jest częstotliwość funkcji grzebieniowej, gdy ,,trafi'' ona w prążki widma sygnału wyjściowego, suma ta będzie największa i będzie określać ona częstotliwość podstawową.
+
+\section{Implementacja}
+Zadanie zostało zrealizowane przy wykorzystaniu framework-u Qt.
+
+Klasa \verb|SoundWindow| jest oknem, które prezentuje wyniki filtracji oraz umożliwia zapisywanie i odtwarzanie dźwięku.
+
+Klasa \verb|WavDecoder| zajmuje się obsługą plików w formacie WAV \ppauza możliwe jest załadowanie, zapisanie oraz odtworzenie pliku (wykorzystując do tego program mplayer).
+
+Interfejs \verb|FilterInterface|, zrealizowany poprzez klasę wirtualną, zapewnia możliwość interakcji z filtrami: \verb|CombFilter| oraz \verb|AutocorrelationFilter|, które implementują metody opisane w sekcjach \ref{sec.comb} i \ref{sec.autocorrelation}. Wyniki działania tych filtrów prezentowane są w oknie klasy \verb|SoundWindow|.
+
+\section{Materiały i metody}
+Do testów wykorzystałem następujące pliki:
+\begin{itemize}
+ \item artifical/easy/225Hz.wav
+ \item artifical/easy/1139Hz.wav
+ \item artifical/diff/180Hz.wav
+ \item artifical/diff/911Hz.wav
+ \item natural/flute/443Hz.wav
+ \item natural/viola/294Hz.wav
+ \item seq/DWK\_violin.wav
+ \item seq/KDF\_piano.wav
+\end{itemize}
+
+Wykorzystano filtry z następującymi ustawieniami:
+\begin{itemize}
+ \item CombFilter:
+ \begin{itemize}
+  \item rozmiar okna: 4096 próbek
+  \item częstotliwość początkowa: 1Hz
+  \item częstotliwość końcowa: 2000Hz
+  \item krok: 1Hz
+ \end{itemize}
+ \item AutocorrelationFilter:
+ \begin{itemize}
+  \item rozmiar okna: 4096
+  \item początkowe m: 10
+ \end{itemize}
+\end{itemize}
+
+\section{Wyniki}
+\subsection{artifical/easy/225Hz.wav}
+\begin{itemize}
+ \item CombFilter: 222Hz, 222Hz, 222Hz, 222Hz, 222Hz, 230Hz, 230Hz, 230Hz, 230Hz, 230Hz, 220Hz
+ \item AutocorrelationFilter: 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz
+\end{itemize}
+
+\subsection{artifical/easy/1139Hz.wav}
+\begin{itemize}
+ \item CombFilter: 1137Hz, 1137Hz, 759Hz, 1145Hz, 1145Hz, 1137Hz, 1137Hz, 1145Hz, 1145Hz, 1145Hz, 1136Hz
+ \item AutocorrelationFilter: 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz
+\end{itemize}
+
+\subsection{artifical/diff/180Hz.wav}
+\begin{itemize}
+ \item CombFilter: 178Hz, 178Hz, 186Hz, 360Hz, 178Hz, 360Hz, 186Hz, 178Hz, 178Hz, 186Hz, 187Hz
+ \item AutocorrelationFilter: 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz
+\end{itemize}
+
+\subsection{artifical/diff/911Hz.wav}
+\begin{itemize}
+ \item CombFilter: 910Hz, 1824Hz, 910Hz, 1816Hz, 918Hz, 910Hz, 918Hz, 910Hz, 910Hz, 918Hz, 910Hz
+ \item AutocorrelationFilter: 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz
+\end{itemize}
+
+\subsection{natural/flute/443Hz.wav}
+\begin{itemize}
+ \item CombFilter: 435Hz, 445Hz, 445Hz, 446Hz, 446Hz, 879Hz, 1329Hz, 438Hz, 438Hz, 438Hz, 437Hz, 1329Hz, 1328Hz, 1329Hz, 1329Hz, 1321Hz, 888Hz, 446Hz, 1330Hz, 888Hz, 438Hz, 879Hz, 879Hz, 437Hz, 467Hz
+ \item AutocorrelationFilter: 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz
+\end{itemize}
+
+\subsection{natural/viola/294Hz.wav}
+\begin{itemize}
+ \item CombFilter: 1458Hz, 295Hz, 296Hz, 1461Hz, 878Hz, 1469Hz, 296Hz, 288Hz, 1469Hz, 295Hz, 1469Hz, 288Hz, 587Hz, 296Hz, 288Hz, 1469Hz, 295Hz, 587Hz, 1469Hz, 587Hz, 295Hz, 1469Hz, 287Hz, 287Hz, 287Hz, 48Hz
+ \item AutocorrelationFilter: 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz
+\end{itemize}
+
+\subsection{seq/DWK\_violin.wav}
+\begin{itemize}
+ \item CombFilter: 521Hz, 1048Hz, 491Hz, 491Hz, 519Hz, 521Hz, 1048Hz, 522Hz, 1577Hz, 392Hz, 1966Hz, 392Hz, 434Hz, 415Hz, 407Hz, 414Hz, 407Hz, 513Hz, 513Hz, 490Hz, 492Hz, 513Hz, 512Hz, 1039Hz, 522Hz, 588Hz, 1179Hz, 1771Hz, 596Hz, 587Hz, 383Hz, 384Hz, 781Hz, 393Hz, 513Hz, 1048Hz, 1038Hz, 987Hz, 976Hz, 513Hz, 512Hz, 521Hz, 521Hz, 587Hz, 1760Hz, 1178Hz, 586Hz, 695Hz, 350Hz, 791Hz, 393Hz, 414Hz, 824Hz, 415Hz, 824Hz, 416Hz, 833Hz, 843Hz, 835Hz, 423Hz, 392Hz, 783Hz, 792Hz, 1050Hz, 932Hz, 932Hz, 1059Hz, 1051Hz, 521Hz, 501Hz, 985Hz, 1310Hz, 1308Hz, 392Hz, 1954Hz, 349Hz, 359Hz, 621Hz, 909Hz, 286Hz, 875Hz, 531Hz, 522Hz, 514Hz, 512Hz, 513Hz, 524Hz, 5Hz, 9Hz, 532Hz
+ \item AutocorrelationFilter: 4009.09Hz, 4009.09Hz, 2940Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 2756.25Hz, 2594.12Hz, 2321.05Hz, 4009.09Hz, 3392.31Hz, 2756.25Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 3675Hz, 2594.12Hz, 2450Hz, 4009.09Hz, 4009.09Hz, 2756.25Hz, 2594.12Hz, 2594.12Hz, 2594.12Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 3150Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 2756.25Hz, 2756.25Hz, 2756.25Hz, 2940Hz, 3675Hz, 4009.09Hz, 3675Hz, 4009.09Hz, 3675Hz, 3392.31Hz, 4009.09Hz, 3392.31Hz, 4009.09Hz, 3675Hz, 3675Hz, 4009.09Hz, 4009.09Hz, 2450Hz, 2594.12Hz, 2756.25Hz, 2756.25Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 2940Hz, 3675Hz, 3150Hz, 3392.31Hz, 2756.25Hz, 2940Hz, 2756.25Hz, 2756.25Hz, 3150Hz, 3392.31Hz, 4009.09Hz, 2940Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 3675Hz, 4009.09Hz
+\end{itemize}
+
+\subsection{seq/KDF\_piano.wav}
+\begin{itemize}
+ \item CombFilter: 16Hz, 24Hz, 25Hz, 20Hz, 8Hz, 9Hz, 9Hz, 597Hz, 287Hz, 587Hz, 295Hz, 887Hz, 288Hz, 296Hz, 295Hz, 587Hz, 287Hz, 587Hz, 295Hz, 446Hz, 445Hz, 445Hz, 445Hz, 446Hz, 437Hz, 437Hz, 437Hz, 19Hz, 445Hz, 25Hz, 320Hz, 350Hz, 696Hz, 350Hz, 349Hz, 342Hz, 350Hz, 342Hz, 350Hz, 342Hz, 350Hz, 342Hz, 597Hz, 287Hz, 587Hz, 295Hz, 1471Hz, 288Hz, 296Hz, 295Hz, 288Hz, 287Hz, 296Hz, 295Hz, 288Hz, 554Hz, 275Hz, 275Hz, 1114Hz, 283Hz, 275Hz, 834Hz, 283Hz, 27Hz, 275Hz, 4Hz, 577Hz, 587Hz, 288Hz, 587Hz, 295Hz, 595Hz, 330Hz, 662Hz, 337Hz, 329Hz, 662Hz, 370Hz, 350Hz, 342Hz, 350Hz, 342Hz, 350Hz, 342Hz, 350Hz, 349Hz, 342Hz, 350Hz, 342Hz, 350Hz, 342Hz, 350Hz, 402Hz, 393Hz, 385Hz, 393Hz, 350Hz, 342Hz, 349Hz, 328Hz, 329Hz, 596Hz, 295Hz, 295Hz, 288Hz, 587Hz, 295Hz, 295Hz, 288Hz, 287Hz, 295Hz, 587Hz, 288Hz, 587Hz, 295Hz, 595Hz, 587Hz, 595Hz, 587Hz, 113Hz, 288Hz, 70Hz, 78Hz, 587Hz, 71Hz, 296Hz, 78Hz, 6Hz, 72Hz, 25Hz, 79Hz, 70Hz, 51Hz, 68Hz, 62Hz, 49Hz, 16Hz, 26Hz, 14Hz, 19Hz, 20Hz, 16Hz, 24Hz, 59Hz, 45Hz, 78Hz, 50Hz, 36Hz, 15Hz, 79Hz
+ \item AutocorrelationFilter: 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz, 4009.09Hz
+\end{itemize}
+
+\section{Dyskusja}
+Filtr grzebieniowy w większości wypadków poprawnie odnajdywał częstotliwości podstawowe sztucznych dźwięków, co potwierdzają subiektywne testy porównawcze. Gorzej wypadał w przypadku dźwięków naturalnych (flute, violin), w przypadku sekwencji jego sprawność była bardzo mała.
+
+Filtr autokorelacji praktycznie nie przynosił żadnych wyników, gdyż okazywało się, że dla każdego okna zaczyna się ono od maksimum, wynikiem więc była kolejna próbka. Zwiększanie wartości początkowej $m$ przynosiło marne rezultaty.
+
+\section{Wnioski}
+\begin{itemize}
+ \item Filtr grzebieniowy ma ograniczoną skuteczność, najlepiej sprawdza się dla dźwięków sztucznych,
+ \item Filtr autokorelacji nie daje oczekiwanych wyników,
+ \item Filtry są bardzo podatne na charakterystykę sygnału, można przypuszczać, że w zależności od sygnału istnieją pewne filtry, które radzą sobie lepiej i inne, które radzą sobie z nim gorzej.
+\end{itemize}
+
 
 \end{document}
