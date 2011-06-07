@@ -43,19 +43,19 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	return new DisplayWindow(q_check_ptr(qobject_cast<QWidget *>(parent()->parent())));;
 }
 
-QVector<qint16> CombFilter::generateTriangle(int duration, qreal freq, qreal sampleRate)
+QVector<qreal> CombFilter::generateTriangle(int duration, qreal freq, qreal sampleRate)
 {
-	QVector<qint16> samples;
+	QVector<qreal> samples;
 	const qreal omega = sampleRate / (freq * 2);
-	qDebug() << "omega:" << omega;
-	QStringList str;
+	//qDebug() << "omega:" << omega;
+	//QStringList str;
 	for (qreal i = 0; i < duration; i += 1) {
 		qreal val;
 		// http://en.wikipedia.org/wiki/Triangle_wave
 		val = (2.0 / omega) * (i - omega * (qreal)((int)(i / omega + 0.5))) * (((int)(i / omega + 0.5)) % 2 == 1 ? -1 : 1);
 		samples << val;
-		str << QString::number(val);
+		//str << QString::number(val);
 	}
-	qDebug() << str.join(",");
+	//qDebug() << str.join(",");
 	return samples;
 }
