@@ -91,6 +91,7 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	qDebug() << "found f:" << fMax;
 	QString fString(QString::number(fMax) + "Hz");
 	QWidget *newParent = q_check_ptr(qobject_cast<QWidget *>(parent()->parent()));
+	mWav.generateSine(0, mWav.samplesCount(), fMax, 0);
 	return new SoundWindow(mWav, fString, windowBaseName + ", " + name(),
 						   newParent);
 }
