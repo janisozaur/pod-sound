@@ -21,6 +21,7 @@ private:
 	WavDecoder mWav;
 	int mStart;
 	int mWindowSize;
+	qreal mComparisonFactor;
 };
 
 #endif // AUTOCORRELATIONFILTER_H

@@ -2,6 +2,9 @@
 #include "AutoCorrelationSetupDialog.h"
 #include "SoundWindow.h"
 
+#include <QVector>
+#include <QElapsedTimer>
+
 #include <QDebug>
 
 AutoCorrelationFilter::AutoCorrelationFilter(QObject *parent) :
@@ -27,6 +30,7 @@ bool AutoCorrelationFilter::setup(const FilterData &data)
 	mWindowSize = dialog.windowSize();
 	mWav = data.wav;
 	mStart = dialog.startM();
+	mComparisonFactor = dialog.comparionFactor();
 	return true;
 }
 
@@ -37,38 +41,61 @@ DisplayWindow *AutoCorrelationFilter::apply(QString windowBaseName)
 	const int windows = (mWav.samplesCount() + mWindowSize - 1) / mWindowSize;
 	qreal phase = 0;
 	QStringList fList;
+	QVector<QString> fVector(windows);
+	int done = 0;
+	QElapsedTimer t;
+	t.start();
+	const int size = mWindowSize;
+	#pragma omp parallel for
 	for (int window = 0; window < windows; window++) {
 		qreal maxM = -INFINITY;
 		for (int channel = 0; channel < mSamples.size(); channel++) {
-			int m;
+			bool crossed = false;
+			int m, m2 = 0;
 			double max = -INFINITY;
-			for (m = mStart; m < mWindowSize; m++) {
+			for (m = mStart; m < size; m++) {
 				double sum = 0;
-				int offset = window * mWindowSize;
-				for (int i = 0; i < mWindowSize; i++) {
-					int idx1 = qMin(mWav.samplesCount(), i + offset);
-					int idx2 = qMin(mWav.samplesCount(), (i + m) % mWindowSize + offset);
+				int offset = window * size;
+				for (int i = 0; i < size; i++) {
+					int idx1 = (i + offset) % mWav.samplesCount();
+					int idx2 = ((i + m) % size + offset) % mWav.samplesCount();
 					sum += mSamples.at(channel).at(idx1) * mSamples.at(channel).at(idx2);
 				}
-				qDebug() << "sum:" << sum << "max:" << max;
-				if (sum > max) {
-					max = sum;
-				} else {
-					break;
+				//qDebug() << "sum:" << sum << "max:" << max;
+				if (!crossed && sum < 0) {
+					crossed = true;
 				}
+				if (crossed && sum > max * mComparisonFactor) {
+					max = sum;
+					m2 = m;
+				}
+				//qDebug() << "m for channel" << m << ":" << sum / 100000;
+				//qDebug() << sum / 100000;
 			}
-			qDebug() << "m for channel" << channel << ":" << m;
-			if (m > maxM) {
-				maxM = m;
+			if (m2 > maxM) {
+				maxM = m2;
 			}
 		}
-		qreal f = (qreal)mWav.sampleRate() / maxM;
-		fList << QString::number(f) + "Hz";
-		phase = mWav.generateSine(window * mWindowSize, mWindowSize, f, phase);
-		qDebug() << "window" << window << "of" << windows << "(" <<
-					(int)((qreal)window * 100 / (qreal) windows) <<
-					"%).";
+		if (maxM == 0) {
+			qDebug() << "m for window" << window << "equals 0";
+		} else {
+			qDebug() << "m" << maxM;
+			qreal f = (qreal)mWav.sampleRate() / maxM;
+			fVector[window] = QString::number(f) + "Hz";
+			mWav.generateSine(window * size, size, f, 0);
+		}
+
+		/*int cnt;
+		{
+			cnt = ++done;
+		}
+		qDebug() << "window" << window << "(" << cnt << "of" << windows << ":" <<
+					(int)((qreal)cnt * 100 / (qreal) windows) <<
+					"%).";*/
 	}
+	int msecs = t.elapsed();
+	qDebug() << "time taken:" << msecs << "miliseconds";
+	fList = QStringList::fromVector(fVector);
 	QString fString(fList.join(", "));
 	qDebug() << fString;
 	QWidget *newParent = q_check_ptr(qobject_cast<QWidget *>(parent()->parent()));
