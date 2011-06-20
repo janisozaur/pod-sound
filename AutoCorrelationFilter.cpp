@@ -42,7 +42,6 @@ DisplayWindow *AutoCorrelationFilter::apply(QString windowBaseName)
 	qreal phase = 0;
 	QStringList fList;
 	QVector<QString> fVector(windows);
-	int done = 0;
 	QElapsedTimer t;
 	t.start();
 	const int size = mWindowSize;
@@ -82,7 +81,7 @@ DisplayWindow *AutoCorrelationFilter::apply(QString windowBaseName)
 			qDebug() << "m" << maxM;
 			qreal f = (qreal)mWav.sampleRate() / maxM;
 			fVector[window] = QString::number(f) + "Hz";
-			mWav.generateSine(window * size, size, f, 0);
+			phase = mWav.generateSine(window * size, size, f, phase);
 		}
 
 		/*int cnt;
