@@ -25,6 +25,12 @@ AutoCorrelationSetupDialog::AutoCorrelationSetupDialog(int max,
 	mStartMSpinBox->setValue(qMin(10, mStartMSpinBox->maximum()));
 	form->addRow("Starting m", mStartMSpinBox);
 
+	mComparisonFactorSpinBox = new QDoubleSpinBox(inputWidget);
+	mComparisonFactorSpinBox->setMaximum(2);
+	mComparisonFactorSpinBox->setMinimum(0.01);
+	mComparisonFactorSpinBox->setValue(1.05);
+	form->addRow("Comparison factor", mComparisonFactorSpinBox);
+
 	vbl->addWidget(inputWidget);
 	QDialogButtonBox *dbb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
 	connect(dbb, SIGNAL(accepted()), this, SLOT(accept()));
@@ -41,4 +47,9 @@ int AutoCorrelationSetupDialog::windowSize() const
 int AutoCorrelationSetupDialog::startM() const
 {
 	return mStartMSpinBox->value();
+}
+
+qreal AutoCorrelationSetupDialog::comparionFactor() const
+{
+	return mComparisonFactorSpinBox->value();
 }
