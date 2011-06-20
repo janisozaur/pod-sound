@@ -47,7 +47,9 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 	for (int window = 0; window < windows; window++) {
 		complexData.resize(0);
 		for (int i = 0; i < size; i++) {
-			Complex c(mWav.samples().at(0).at(i + window * mWindowSize), 0);
+			qreal r = mWav.samples().at(0).at(i + window * mWindowSize);
+			r *= (0.54 - 0.46 * cos(2.0 * M_PI * i / (mWindowSize - 1)));
+			Complex c(r, 0);
 			complexData << c;
 		}
 		{
