@@ -73,7 +73,7 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 		qreal fMax = -INFINITY;
 		QElapsedTimer t;
 		t.start();
-		#pragma omp parallel for
+		//#pragma omp parallel for
 		for (int w = 0; w < steps; w++) {
 			qreal f = mStart + mStep * w;
 			QVector<Complex> c = generateTriangle(size, f, sr);
@@ -82,9 +82,9 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 			for (int i = 0; i < size; i++) {
 				c2 << Complex(c.at(i), 0);
 			}*/
-			FFT fft;
+			/*FFT fft;
 			fft.rearrange(c);
-			fft.transform(c, false);
+			fft.transform(c, false);*/
 			qreal sum = 0;
 			for (int i = 0; i < size; i++) {
 				sum += c.at(i).real() * realData.at(i);
@@ -92,13 +92,14 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 			if (sum > sumMax) {
 				sumMax = sum;
 				fMax = f;
+				//fMax = f / ((qreal)sr / (qreal)size);
 			}
 		}
 		int msecs = t.elapsed();
-		qDebug() << "window" << window << "of" << windows << "(" <<
+		/*qDebug() << "window" << window << "of" << windows << "(" <<
 					(int)((qreal)window * 100 / (qreal) windows) <<
 					"%). time taken:" << msecs << "miliseconds";
-		qDebug() << "found f:" << fMax;
+		qDebug() << "found f:" << fMax;*/
 		fList << QString::number(fMax) + "Hz";
 		phase = mWav.generateSine(window * mWindowSize, mWindowSize, fMax,
 								  phase);
@@ -113,16 +114,45 @@ DisplayWindow *CombFilter::apply(QString windowBaseName)
 QVector<Complex> CombFilter::generateTriangle(int duration, qreal freq, qreal sampleRate)
 {
 	QVector<Complex> samples;
-	const qreal omega = sampleRate / (freq * 2);
+	static int f = 0;
+	const qreal omega = sampleRate / freq;
 	//qDebug() << "omega:" << omega;
 	//QStringList str;
+	qreal t = omega;
+	int x = 0;
+	qreal max = 0;
+	qreal min = 0;
 	for (qreal i = 0; i < duration; i += 1) {
 		qreal val;
 		// http://en.wikipedia.org/wiki/Triangle_wave
-		val = (2.0 / omega) * (i - omega * (qreal)((int)(i / omega + 0.5))) * (((int)(i / omega + 0.5)) % 2 == 1 ? -1 : 1);
+		qreal i2 = i;
+		while (i2 > t) {
+			i2 -= t;
+		}
+		if ((i2 > 0 && i2 < t / 4) || (i2 > 3 * t / 4)) {
+			val = x++;
+			if (val > max) {
+				max = val;
+			}
+		} else {
+			val = x--;
+			if (val < min) {
+				min = val;
+			}
+		}
+		if (f == 220) {
+			qDebug() << val;
+		}
 		samples << Complex(val, 0);
 		//str << QString::number(val);
 	}
+	for (int i = 0; i < samples.size(); i++) {
+		samples[i].setReal((samples.at(i).real() - min) / (max - min));
+	}
+	if (f == 220) {
+		//qDebug() << "omega, freq" << (f == 10) << omega << freq << t;
+	}
+	f++;
 	//qDebug() << str.join(",");
 	return samples;
 }

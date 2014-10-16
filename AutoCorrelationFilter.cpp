@@ -52,7 +52,7 @@ DisplayWindow *AutoCorrelationFilter::apply(QString windowBaseName)
 			bool crossed = false;
 			int m, m2 = 0;
 			double max = -INFINITY;
-			for (m = mStart; m < size; m++) {
+			for (m = mStart; m < size / 2; m++) {
 				double sum = 0;
 				int offset = window * size;
 				for (int i = 0; i < size; i++) {
